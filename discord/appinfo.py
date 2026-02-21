@@ -43,7 +43,6 @@ if TYPE_CHECKING:
         InstallParams as InstallParamsPayload,
         AppIntegrationTypeConfig as AppIntegrationTypeConfigPayload,
     )
-    from .user import User
     from .state import ConnectionState
 
 __all__ = (
@@ -81,12 +80,6 @@ class AppInfo:
         grant flow to join.
     rpc_origins: Optional[List[:class:`str`]]
         A list of RPC origin URLs, if RPC is enabled.
-
-    verify_key: :class:`str`
-        The hex encoded key for verification in interactions and the
-        GameSDK's :ddocs:`GetTicket <game-sdk/applications#getticket>`.
-
-        .. versionadded:: 1.3
 
     guild_id: Optional[:class:`int`]
         If this application is a game sold on Discord,
@@ -163,9 +156,7 @@ class AppInfo:
         'rpc_origins',
         'bot_public',
         'bot_require_code_grant',
-        'owner',
         '_icon',
-        'verify_key',
         'team',
         'guild_id',
         'primary_sku_id',
@@ -196,12 +187,9 @@ class AppInfo:
         self.rpc_origins: Optional[List[str]] = data.get('rpc_origins')
         self.bot_public: bool = data['bot_public']
         self.bot_require_code_grant: bool = data['bot_require_code_grant']
-        self.owner: User = state.create_user(data['owner'])
 
         team: Optional[TeamPayload] = data.get('team')
         self.team: Optional[Team] = Team(state, team) if team else None
-
-        self.verify_key: str = data['verify_key']
 
         self.guild_id: Optional[int] = utils._get_as_snowflake(data, 'guild_id')
 
@@ -228,8 +216,7 @@ class AppInfo:
     def __repr__(self) -> str:
         return (
             f'<{self.__class__.__name__} id={self.id} name={self.name!r} '
-            f'description={self.description!r} public={self.bot_public} '
-            f'owner={self.owner!r}>'
+            f'description={self.description!r} public={self.bot_public}>'
         )
 
     @property
@@ -512,9 +499,6 @@ class PartialAppInfo:
         The application description.
     rpc_origins: Optional[List[:class:`str`]]
         A list of RPC origin URLs, if RPC is enabled.
-    verify_key: :class:`str`
-        The hex encoded key for verification in interactions and the
-        GameSDK's :ddocs:`GetTicket <game-sdk/applications#getticket>`.
     terms_of_service_url: Optional[:class:`str`]
         The application's terms of service URL, if set.
     privacy_policy_url: Optional[:class:`str`]
@@ -545,7 +529,6 @@ class PartialAppInfo:
         'name',
         'description',
         'rpc_origins',
-        'verify_key',
         'terms_of_service_url',
         'privacy_policy_url',
         '_icon',
@@ -566,7 +549,6 @@ class PartialAppInfo:
         self._cover_image: Optional[str] = data.get('cover_image')
         self.description: str = data['description']
         self.rpc_origins: Optional[List[str]] = data.get('rpc_origins')
-        self.verify_key: str = data['verify_key']
         self.terms_of_service_url: Optional[str] = data.get('terms_of_service_url')
         self.privacy_policy_url: Optional[str] = data.get('privacy_policy_url')
         self.approximate_guild_count: int = data.get('approximate_guild_count', 0)

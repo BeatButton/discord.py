@@ -27,7 +27,6 @@ from __future__ import annotations
 from typing import Literal, Dict, TypedDict, List, Optional
 from typing_extensions import NotRequired
 
-from .user import User
 from .team import Team
 from .snowflake import Snowflake
 from .emoji import Emoji
@@ -45,9 +44,7 @@ class AppIntegrationTypeConfig(TypedDict):
 class BaseAppInfo(TypedDict):
     id: Snowflake
     name: str
-    verify_key: str
     icon: Optional[str]
-    summary: str
     description: str
     flags: int
     approximate_user_install_count: NotRequired[int]
@@ -61,7 +58,6 @@ class BaseAppInfo(TypedDict):
 
 
 class AppInfo(BaseAppInfo):
-    owner: User
     bot_public: bool
     bot_require_code_grant: bool
     team: NotRequired[Team]
