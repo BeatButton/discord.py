@@ -290,7 +290,7 @@ def handle_message_parameters(
     return MultipartParameters(payload=payload, multipart=multipart, files=files)
 
 
-INTERNAL_API_VERSION: int = 10
+INTERNAL_API_VERSION: int = 1
 
 
 def _set_api_version(value: int):
@@ -299,15 +299,15 @@ def _set_api_version(value: int):
     if not isinstance(value, int):
         raise TypeError(f'expected int not {value.__class__.__name__}')
 
-    if value not in (9, 10):
-        raise ValueError(f'expected either 9 or 10 not {value}')
+    if value != 1:
+        raise ValueError(f'expected 1 not {value}')
 
     INTERNAL_API_VERSION = value
-    Route.BASE = f'https://discord.com/api/v{value}'
+    Route.BASE = f'https://api.fluxer.app/v{value}'
 
 
 class Route:
-    BASE: ClassVar[str] = 'https://discord.com/api/v10'
+    BASE: ClassVar[str] = 'https://api.fluxer.app/v1'
 
     def __init__(self, method: str, path: str, *, metadata: Optional[str] = None, **parameters: Any) -> None:
         self.path: str = path
