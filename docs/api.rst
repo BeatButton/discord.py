@@ -3952,21 +3952,6 @@ of :class:`enum.Enum`.
         The invite is a friend invite.
 
 
-.. class:: ReactionType
-
-    Represents the type of a reaction.
-
-    .. versionadded:: 2.4
-
-    .. attribute:: normal
-
-        A normal reaction.
-
-    .. attribute:: burst
-
-        A burst reaction, also known as a "super reaction".
-
-
 .. class:: VoiceChannelEffectAnimationType
 
     Represents the animation type of a voice channel effect.
