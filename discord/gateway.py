@@ -575,7 +575,6 @@ class DiscordWebSocket:
         if event == 'READY':
             self.sequence = msg['s']
             self.session_id = data['session_id']
-            self.gateway = yarl.URL(data['resume_gateway_url'])
             _log.info('Shard ID %s has connected to Gateway (Session ID: %s).', self.shard_id, self.session_id)
 
         elif event == 'RESUMED':

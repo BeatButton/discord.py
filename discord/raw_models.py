@@ -466,7 +466,7 @@ class RawTypingEvent(_RawReprMixin):
         self.channel_id: int = int(data['channel_id'])
         self.user_id: int = int(data['user_id'])
         self.user: Optional[Union[User, Member]] = None
-        self.timestamp: datetime.datetime = datetime.datetime.fromtimestamp(data['timestamp'], tz=datetime.timezone.utc)
+        self.timestamp: datetime.datetime = datetime.datetime.fromtimestamp(data['timestamp'] / 1000, tz=datetime.timezone.utc)
         self.guild_id: Optional[int] = _get_as_snowflake(data, 'guild_id')
 
 

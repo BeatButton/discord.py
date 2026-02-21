@@ -77,6 +77,6 @@ class User(PartialUser, total=False):
     locale: str
     verified: bool
     email: Optional[str]
-    flags: int
+    profile_flags: Optional[int]
     premium_type: PremiumType
     public_flags: int
