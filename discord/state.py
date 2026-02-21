@@ -1946,7 +1946,7 @@ class AutoShardedConnectionState(ConnectionState[ClientT]):
         if self._ready_task is not None:
             self._ready_task.cancel()
 
-        shard_id = data['shard'][0]  # shard_id, num_shards
+        shard_id = 1
 
         if shard_id in self._ready_tasks:
             self._ready_tasks[shard_id].cancel()
