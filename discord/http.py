@@ -303,7 +303,7 @@ def _set_api_version(value: int):
         raise ValueError(f'expected 1 not {value}')
 
     INTERNAL_API_VERSION = value
-    Route.BASE = f'https://api.fluxer.app/v{value}'
+    Route.BASE = f'{Route.BASE.rpartition("/")[0]}/v{value}'
 
 
 class Route:
