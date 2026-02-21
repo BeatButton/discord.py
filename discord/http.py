@@ -2663,7 +2663,7 @@ class HTTPClient:
     # Application
 
     def application_info(self) -> Response[appinfo.AppInfo]:
-        return self.request(Route('GET', '/oauth2/applications/@me'))
+        return self.request(Route('GET', '/applications/@me'))
 
     def edit_application_info(self, *, reason: Optional[str], payload: Any) -> Response[appinfo.AppInfo]:
         valid_keys = (
