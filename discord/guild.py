@@ -3642,8 +3642,6 @@ class Guild(Hashable):
         hoist: bool = ...,
         display_icon: Union[bytes, str] = MISSING,
         mentionable: bool = ...,
-        secondary_colour: Optional[Union[Colour, int]] = ...,
-        tertiary_colour: Optional[Union[Colour, int]] = ...,
     ) -> Role: ...
 
     @overload
@@ -3657,8 +3655,6 @@ class Guild(Hashable):
         hoist: bool = ...,
         display_icon: Union[bytes, str] = MISSING,
         mentionable: bool = ...,
-        secondary_color: Optional[Union[Colour, int]] = ...,
-        tertiary_color: Optional[Union[Colour, int]] = ...,
     ) -> Role: ...
 
     async def create_role(
@@ -3672,10 +3668,6 @@ class Guild(Hashable):
         display_icon: Union[bytes, str] = MISSING,
         mentionable: bool = MISSING,
         reason: Optional[str] = None,
-        secondary_color: Optional[Union[Colour, int]] = MISSING,
-        tertiary_color: Optional[Union[Colour, int]] = MISSING,
-        secondary_colour: Optional[Union[Colour, int]] = MISSING,
-        tertiary_colour: Optional[Union[Colour, int]] = MISSING,
     ) -> Role:
         """|coro|
 
@@ -3751,34 +3743,11 @@ class Guild(Hashable):
         else:
             fields['permissions'] = '0'
 
-        colours: Dict[str, Any] = {}
-
         actual_colour = colour or color or Colour.default()
-        if isinstance(actual_colour, int):
-            colours['primary_color'] = actual_colour
-        else:
-            colours['primary_color'] = actual_colour.value
+        if not isinstance(actual_colour, int):
+            actual_colour = actual_colour.value
 
-        actual_secondary_colour = secondary_colour or secondary_color
-        actual_tertiary_colour = tertiary_colour or tertiary_color
-
-        if actual_secondary_colour is not MISSING:
-            if actual_secondary_colour is None:
-                colours['secondary_color'] = None
-            elif isinstance(actual_secondary_colour, int):
-                colours['secondary_color'] = actual_secondary_colour
-            else:
-                colours['secondary_color'] = actual_secondary_colour.value
-
-        if actual_tertiary_colour is not MISSING:
-            if actual_tertiary_colour is None:
-                colours['tertiary_color'] = None
-            elif isinstance(actual_tertiary_colour, int):
-                colours['tertiary_color'] = actual_tertiary_colour
-            else:
-                colours['tertiary_color'] = actual_tertiary_colour.value
-
-        fields['colors'] = colours
+        fields['color'] = actual_colour
 
         if hoist is not MISSING:
             fields['hoist'] = hoist
