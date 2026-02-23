@@ -33,7 +33,7 @@ from .integration import IntegrationExpireBehavior, PartialIntegration
 from .user import User
 from .scheduled_event import EntityType, EventStatus, GuildScheduledEvent
 from .snowflake import Snowflake
-from .role import Role, RoleColours
+from .role import Role
 from .channel import ChannelType, DefaultReaction, PrivacyLevel, VideoQualityMode, PermissionOverwrite, ForumTag
 from .threads import Thread
 from .command import ApplicationCommand, ApplicationCommandPermissions
@@ -323,12 +323,6 @@ class _AuditLogChange_Options(TypedDict):
     old_value: List[PromptOption]
 
 
-class _AuditLogChange_RoleColours(TypedDict):
-    key: Literal['colors']
-    new_value: RoleColours
-    old_value: RoleColours
-
-
 AuditLogChange = Union[
     _AuditLogChange_Str,
     _AuditLogChange_AssetHash,
@@ -355,7 +349,6 @@ AuditLogChange = Union[
     _AuditLogChange_TriggerMetadata,
     _AuditLogChange_Prompts,
     _AuditLogChange_Options,
-    _AuditLogChange_RoleColours,
 ]
 
 
