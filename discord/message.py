@@ -2218,6 +2218,8 @@ class Message(PartialMessage, Hashable):
         self.stickers: List[StickerItem] = [StickerItem(data=d, state=state) for d in data.get('sticker_items', [])]
         self.message_snapshots: List[MessageSnapshot] = MessageSnapshot._from_value(state, data.get('message_snapshots'))
         self.call: Optional[CallMessage] = None
+        self.mentions: List[User | Member] = []
+        self.role_mentions: List[Role] = []
         # Set by Messageable.pins
         self._pinned_at: Optional[datetime.datetime] = None
 
@@ -2471,7 +2473,7 @@ class Message(PartialMessage, Hashable):
             self.author = Member._from_message(message=self, data=member)
 
     def _handle_mentions(self, mentions: List[UserWithMemberPayload]) -> None:
-        self.mentions = r = []
+        r = self.mentions
         guild = self.guild
         state = self._state
         if not isinstance(guild, Guild):
