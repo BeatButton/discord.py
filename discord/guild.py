@@ -29,7 +29,6 @@ import datetime
 from typing import (
     Any,
     AsyncIterator,
-    ClassVar,
     Collection,
     Coroutine,
     Dict,
@@ -451,14 +450,6 @@ class Guild(Hashable):
         '_soundboard_sounds',
     )
 
-    _PREMIUM_GUILD_LIMITS: ClassVar[Dict[Optional[int], _GuildLimit]] = {
-        None: _GuildLimit(emoji=50, stickers=5, bitrate=96e3, filesize=utils.DEFAULT_FILE_SIZE_LIMIT_BYTES),
-        0: _GuildLimit(emoji=50, stickers=5, bitrate=96e3, filesize=utils.DEFAULT_FILE_SIZE_LIMIT_BYTES),
-        1: _GuildLimit(emoji=100, stickers=15, bitrate=128e3, filesize=utils.DEFAULT_FILE_SIZE_LIMIT_BYTES),
-        2: _GuildLimit(emoji=150, stickers=30, bitrate=256e3, filesize=52428800),
-        3: _GuildLimit(emoji=250, stickers=60, bitrate=384e3, filesize=104857600),
-    }
-
     def __init__(self, *, data: GuildPayload, state: ConnectionState) -> None:
         self._channels: Dict[int, GuildChannel] = {}
         self._members: Dict[int, Member] = {}
@@ -616,8 +607,6 @@ class Guild(Hashable):
         self.max_members: Optional[int] = guild.get('max_members')
         self.max_video_channel_users: Optional[int] = guild.get('max_video_channel_users')
         self.max_stage_video_users: Optional[int] = guild.get('max_stage_video_channel_users')
-        self.premium_tier: int = guild.get('premium_tier', 0)
-        self.premium_subscription_count: int = guild.get('premium_subscription_count') or 0
         self.vanity_url_code: Optional[str] = guild.get('vanity_url_code')
         self.widget_enabled: bool = guild.get('widget_enabled', False)
         self._widget_channel_id: Optional[int] = utils._get_as_snowflake(guild, 'widget_channel_id')
@@ -631,7 +620,6 @@ class Guild(Hashable):
         self.mfa_level: MFALevel = try_enum(MFALevel, guild.get('mfa_level', 0))
         self.approximate_presence_count: Optional[int] = guild.get('approximate_presence_count')
         self.approximate_member_count: Optional[int] = guild.get('approximate_member_count')
-        self.premium_progress_bar_enabled: bool = guild.get('premium_progress_bar_enabled', False)
         self.owner_id: Optional[int] = utils._get_as_snowflake(guild, 'owner_id')
         self._large: Optional[bool] = None if self._member_count is None else self._member_count >= 250
         self._afk_channel_id: Optional[int] = utils._get_as_snowflake(guild, 'afk_channel_id')
@@ -969,30 +957,35 @@ class Guild(Hashable):
         return channel_id and self._channels.get(channel_id)  # type: ignore
 
     @property
-    def emoji_limit(self) -> int:
+    def emoji_limit(self) -> int | None:
         """:class:`int`: The maximum number of emoji slots this guild has."""
-        more_emoji = 200 if 'MORE_EMOJI' in self.features else 50
-        return max(more_emoji, self._PREMIUM_GUILD_LIMITS[self.premium_tier].emoji)
+        if 'UNLIMITED_EMOJI' in self.features:
+            return None
+        if 'MORE_EMOJI' in self.features:
+            return 200
+        return 50
 
     @property
-    def sticker_limit(self) -> int:
+    def sticker_limit(self) -> int | None:
         """:class:`int`: The maximum number of sticker slots this guild has.
 
         .. versionadded:: 2.0
         """
-        more_stickers = 60 if 'MORE_STICKERS' in self.features else 0
-        return max(more_stickers, self._PREMIUM_GUILD_LIMITS[self.premium_tier].stickers)
+        if 'UNLIMITED_STICKERS' in self.features:
+            return None
+        if 'MORE_STICKERS' in self.features:
+            return 60
+        return 5
 
     @property
     def bitrate_limit(self) -> float:
         """:class:`float`: The maximum bitrate for voice channels this guild can have."""
-        vip_guild = self._PREMIUM_GUILD_LIMITS[1].bitrate if 'VIP_REGIONS' in self.features else 96e3
-        return max(vip_guild, self._PREMIUM_GUILD_LIMITS[self.premium_tier].bitrate)
+        return 96e3
 
     @property
     def filesize_limit(self) -> int:
         """:class:`int`: The maximum number of bytes files can have when uploaded to this guild."""
-        return self._PREMIUM_GUILD_LIMITS[self.premium_tier].filesize
+        return 524288000
 
     @property
     def members(self) -> Sequence[Member]:
