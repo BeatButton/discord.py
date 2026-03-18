@@ -235,7 +235,7 @@ class GuildPreview(Hashable):
             )
         )
         self.stickers: Tuple[GuildSticker, ...] = tuple(
-            map(lambda d: GuildSticker(state=state, data=d), data.get('stickers', []))
+            map(lambda d: GuildSticker(state=state, data=d, guild_id=self.id), data.get('stickers', []))
         )
         self.features: List[GuildFeature] = data.get('features', [])
         self.description: Optional[str] = data.get('description')
@@ -3041,7 +3041,7 @@ class Guild(Hashable):
             The retrieved stickers.
         """
         data = await self._state.http.get_all_guild_stickers(self.id)
-        return [GuildSticker(state=self._state, data=d) for d in data]
+        return [GuildSticker(state=self._state, data=d, guild_id=self.id) for d in data]
 
     async def fetch_sticker(self, sticker_id: int, /) -> GuildSticker:
         """|coro|
@@ -3073,7 +3073,7 @@ class Guild(Hashable):
             The retrieved sticker.
         """
         data = await self._state.http.get_guild_sticker(self.id, sticker_id)
-        return GuildSticker(state=self._state, data=data)
+        return GuildSticker(state=self._state, data=data, guild_id=self.id)
 
     async def create_sticker(
         self,
@@ -3132,7 +3132,7 @@ class Guild(Hashable):
         if self._state.cache_guild_expressions:
             return self._state.store_sticker(self, data)
         else:
-            return GuildSticker(state=self._state, data=data)
+            return GuildSticker(state=self._state, data=data, guild_id=self.id)
 
     async def delete_sticker(self, sticker: Snowflake, /, *, reason: Optional[str] = None) -> None:
         """|coro|

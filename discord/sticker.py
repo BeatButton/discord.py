@@ -23,13 +23,13 @@ DEALINGS IN THE SOFTWARE.
 """
 
 from __future__ import annotations
-from typing import Literal, TYPE_CHECKING, List, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, List, Optional
 import unicodedata
 
 from .mixins import Hashable
 from .asset import Asset, AssetMixin
 from .utils import cached_slot_property, snowflake_time, get, MISSING, _get_as_snowflake
-from .enums import StickerType, try_enum
+from .enums import StickerType
 
 __all__ = (
     'StickerPack',
@@ -199,7 +199,7 @@ class StickerItem(_StickerTag):
     def __str__(self) -> str:
         return self.name
 
-    async def fetch(self) -> Union[Sticker, StandardSticker, GuildSticker]:
+    async def fetch(self) -> StandardSticker:
         """|coro|
 
         Attempts to retrieve the full sticker data of the sticker item.
@@ -215,8 +215,7 @@ class StickerItem(_StickerTag):
             The retrieved sticker.
         """
         data: StickerPayload = await self._state.http.get_sticker(self.id)
-        cls, _ = _sticker_factory(data['type'])
-        return cls(state=self._state, data=data)
+        return StandardSticker(state=self._state, data=data)
 
 
 class Sticker(_StickerTag):
@@ -250,7 +249,7 @@ class Sticker(_StickerTag):
         The URL for the sticker's image.
     """
 
-    __slots__ = ('_state', 'id', 'name', 'description', 'format', 'url')
+    __slots__ = ('_state', 'id', 'name', 'description', 'animated', 'url')
 
     def __init__(self, *, state: ConnectionState, data: StickerPayload) -> None:
         self._state: ConnectionState = state
@@ -260,6 +259,7 @@ class Sticker(_StickerTag):
         self.id: int = int(data['id'])
         self.name: str = data['name']
         self.description: str = data['description']
+        self.animated: bool = data['animated']
         self.url: str = f'{Asset.BASE}/stickers/{self.id}.webp'
 
     def __repr__(self) -> str:
@@ -389,10 +389,14 @@ class GuildSticker(Sticker):
 
     __slots__ = ('available', 'guild_id', 'user', 'emoji', 'type', '_cs_guild')
 
-    def _from_data(self, data: GuildStickerPayload) -> None:
+    def __init__(self, *, state: ConnectionState, data: StickerPayload, guild_id: int) -> None:
+        self._state: ConnectionState = state
+        self._from_data(data, guild_id)
+
+    def _from_data(self, data: StickerPayload, guild_id: int) -> None:
         super()._from_data(data)
         self.available: bool = data.get('available', True)
-        self.guild_id: int = int(data['guild_id'])
+        self.guild_id: int = guild_id
         user = data.get('user')
         self.user: Optional[User] = self._state.store_user(user) if user else None
         self.emoji: str = data['tags']
@@ -464,7 +468,7 @@ class GuildSticker(Sticker):
             payload['tags'] = emoji
 
         data: GuildStickerPayload = await self._state.http.modify_guild_sticker(self.guild_id, self.id, payload, reason)
-        return GuildSticker(state=self._state, data=data)
+        return GuildSticker(state=self._state, data=data, guild_id=self.guild_id)
 
     async def delete(self, *, reason: Optional[str] = None) -> None:
         """|coro|
@@ -486,13 +490,3 @@ class GuildSticker(Sticker):
             An error occurred deleting the sticker.
         """
         await self._state.http.delete_guild_sticker(self.guild_id, self.id, reason)
-
-
-def _sticker_factory(sticker_type: Literal[1, 2]) -> Tuple[Type[Union[StandardSticker, GuildSticker, Sticker]], StickerType]:
-    value = try_enum(StickerType, sticker_type)
-    if value == StickerType.standard:
-        return StandardSticker, value
-    elif value == StickerType.guild:
-        return GuildSticker, value
-    else:
-        return Sticker, value

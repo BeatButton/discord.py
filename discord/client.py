@@ -77,7 +77,7 @@ from .ui.view import BaseView
 from .ui.dynamic import DynamicItem
 from .stage_instance import StageInstance
 from .threads import Thread
-from .sticker import GuildSticker, StandardSticker, StickerPack, _sticker_factory
+from .sticker import GuildSticker, StandardSticker, StickerPack
 from .soundboard import SoundboardDefaultSound, SoundboardSound
 
 if TYPE_CHECKING:
@@ -2754,7 +2754,7 @@ class Client:
         data = await self.http.get_webhook(webhook_id)
         return Webhook.from_state(data, state=self._connection)
 
-    async def fetch_sticker(self, sticker_id: int, /) -> Union[StandardSticker, GuildSticker]:
+    async def fetch_sticker(self, sticker_id: int, /) -> StandardSticker:
         """|coro|
 
         Retrieves a :class:`.Sticker` with the specified ID.
@@ -2774,9 +2774,7 @@ class Client:
             The sticker you requested.
         """
         data = await self.http.get_sticker(sticker_id)
-        cls, _ = _sticker_factory(data['type'])
-        # The type checker is not smart enough to figure out the constructor is correct
-        return cls(state=self._connection, data=data)  # type: ignore
+        return StandardSticker(state=self._connection, data=data)
 
     async def fetch_skus(self) -> List[SKU]:
         """|coro|
