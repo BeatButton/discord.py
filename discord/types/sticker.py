@@ -30,13 +30,10 @@ from typing_extensions import NotRequired
 from .snowflake import Snowflake
 from .user import User
 
-StickerFormatType = Literal[1, 2, 3, 4]
-
 
 class StickerItem(TypedDict):
     id: Snowflake
     name: str
-    format_type: StickerFormatType
 
 
 class BaseSticker(TypedDict):
@@ -44,7 +41,6 @@ class BaseSticker(TypedDict):
     name: str
     description: str
     tags: str
-    format_type: StickerFormatType
 
 
 class StandardSticker(BaseSticker):
