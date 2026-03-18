@@ -29,7 +29,7 @@ import unicodedata
 from .mixins import Hashable
 from .asset import Asset, AssetMixin
 from .utils import cached_slot_property, snowflake_time, get, MISSING, _get_as_snowflake
-from .enums import StickerType, StickerFormatType, try_enum
+from .enums import StickerType, try_enum
 
 __all__ = (
     'StickerPack',
@@ -133,16 +133,11 @@ class _StickerTag(Hashable, AssetMixin):
     __slots__ = ()
 
     id: int
-    format: StickerFormatType
 
     async def read(self) -> bytes:
         """|coro|
 
         Retrieves the content of this sticker as a :class:`bytes` object.
-
-        .. note::
-
-            Stickers that use the :attr:`StickerFormatType.lottie` format cannot be read.
 
         Raises
         ------
@@ -158,8 +153,6 @@ class _StickerTag(Hashable, AssetMixin):
         :class:`bytes`
             The content of the asset.
         """
-        if self.format is StickerFormatType.lottie:
-            raise TypeError('Cannot read stickers of format "lottie".')
         return await super().read()
 
 
@@ -188,8 +181,6 @@ class StickerItem(_StickerTag):
         The sticker's name.
     id: :class:`int`
         The id of the sticker.
-    format: :class:`StickerFormatType`
-        The format for the sticker's image.
     url: :class:`str`
         The URL for the sticker's image.
     """
@@ -200,11 +191,7 @@ class StickerItem(_StickerTag):
         self._state: ConnectionState = state
         self.name: str = data['name']
         self.id: int = int(data['id'])
-        self.format: StickerFormatType = try_enum(StickerFormatType, data['format_type'])
-        if self.format is StickerFormatType.gif:
-            self.url: str = f'https://media.discordapp.net/stickers/{self.id}.gif'
-        else:
-            self.url: str = f'{Asset.BASE}/stickers/{self.id}.{self.format.file_extension}'
+        self.url: str = f'{Asset.BASE}/stickers/{self.id}.{self.format.file_extension}'
 
     def __repr__(self) -> str:
         return f'<StickerItem id={self.id} name={self.name!r} format={self.format}>'
@@ -259,8 +246,6 @@ class Sticker(_StickerTag):
         The id of the sticker.
     description: :class:`str`
         The description of the sticker.
-    format: :class:`StickerFormatType`
-        The format for the sticker's image.
     url: :class:`str`
         The URL for the sticker's image.
     """
@@ -275,11 +260,7 @@ class Sticker(_StickerTag):
         self.id: int = int(data['id'])
         self.name: str = data['name']
         self.description: str = data['description']
-        self.format: StickerFormatType = try_enum(StickerFormatType, data['format_type'])
-        if self.format is StickerFormatType.gif:
-            self.url: str = f'https://media.discordapp.net/stickers/{self.id}.gif'
-        else:
-            self.url: str = f'{Asset.BASE}/stickers/{self.id}.{self.format.file_extension}'
+        self.url: str = f'{Asset.BASE}/stickers/{self.id}.webp'
 
     def __repr__(self) -> str:
         return f'<Sticker id={self.id} name={self.name!r}>'
@@ -322,8 +303,6 @@ class StandardSticker(Sticker):
         The description of the sticker.
     pack_id: :class:`int`
         The id of the sticker's pack.
-    format: :class:`StickerFormatType`
-        The format for the sticker's image.
     tags: List[:class:`str`]
         A list of tags for the sticker.
     sort_value: :class:`int`
@@ -397,8 +376,6 @@ class GuildSticker(Sticker):
         The id of the sticker.
     description: :class:`str`
         The description of the sticker.
-    format: :class:`StickerFormatType`
-        The format for the sticker's image.
     available: :class:`bool`
         Whether this sticker is available for use.
     guild_id: :class:`int`
