@@ -409,7 +409,7 @@ class ConnectionState(Generic[ClientT]):
 
     def store_sticker(self, guild: Guild, data: GuildStickerPayload) -> GuildSticker:
         sticker_id = int(data['id'])
-        self._stickers[sticker_id] = sticker = GuildSticker(state=self, data=data)
+        self._stickers[sticker_id] = sticker = GuildSticker(state=self, data=data, guild_id=guild.id)
         return sticker
 
     def store_view(self, view: BaseView, message_id: Optional[int] = None) -> None:

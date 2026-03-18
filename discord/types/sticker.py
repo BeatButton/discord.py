@@ -24,11 +24,10 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from typing import List, Literal, TypedDict, Union, Optional
+from typing import List, TypedDict, Optional
 from typing_extensions import NotRequired
 
 from .snowflake import Snowflake
-from .user import User
 
 
 class StickerItem(TypedDict):
@@ -41,22 +40,20 @@ class BaseSticker(TypedDict):
     name: str
     description: str
     tags: str
+    animated: bool
 
 
 class StandardSticker(BaseSticker):
-    type: Literal[1]
     sort_value: int
     pack_id: Snowflake
 
 
-class GuildSticker(BaseSticker):
-    type: Literal[2]
-    available: NotRequired[bool]
-    guild_id: Snowflake
-    user: NotRequired[User]
+class GuildSticker(StandardSticker):
+    pass
 
 
-Sticker = Union[StandardSticker, GuildSticker]
+class Sticker(StandardSticker):
+    pass
 
 
 class StickerPack(TypedDict):
