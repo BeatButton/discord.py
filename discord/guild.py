@@ -566,7 +566,7 @@ class Guild(Hashable):
         return cls(state=state, data=data)  # type: ignore
 
     def _from_data(self, guild: GuildPayload) -> None:
-        guild = {**guild, **guild['properties']}  # type: ignore
+        guild = {**guild, **guild.get('properties', {})}  # type: ignore
         try:
             self._member_count = guild['member_count']  # pyright: ignore[reportTypedDictNotRequiredAccess]
         except KeyError:
