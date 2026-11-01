@@ -638,7 +638,7 @@ class DiscordWebSocket:
         # If the socket is closed remotely with 1000 and it's not our own explicit close
         # then it's an improper close that should be handled and reconnected
         is_improper_close = self._close_code is None and self.socket.close_code == 1000
-        return is_improper_close or code not in (1000, 4004, 4010, 4011, 4012, 4013, 4014)
+        return is_improper_close or code not in (1000, 4002, 4004, 4010, 4011, 4012, 4013, 4014)
 
     async def poll_event(self) -> None:
         """Polls for a DISPATCH event and handles the general gateway loop.
